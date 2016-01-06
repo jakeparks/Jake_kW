@@ -1,0 +1,27 @@
+﻿FUNCTION "0001_Update_Time" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      TBK : "BMS_Time";
+   END_VAR
+
+   VAR_TEMP 
+      Norm_Index : Int;
+      Now_Return : Int;
+   END_VAR
+
+
+BEGIN
+	FOR #Norm_Index := 1 TO 3 DO
+	    
+	    #TBK.Stamp[4 - #Norm_Index] := #TBK.Stamp[3 - #Norm_Index];
+	    #TBK.Millisecond[4 - #Norm_Index] := #TBK.Millisecond[3 - #Norm_Index];
+	    #TBK.Delta[4 - #Norm_Index] := #TBK.Delta[3 - #Norm_Index];
+	    
+	END_FOR;
+	
+	#Now_Return := RD_SYS_T(OUT => #TBK.Stamp[0]);
+	"0002_DTL_to_Milliseconds"(Stamp := #TBK.Stamp[0], Milliseconds => #TBK.Millisecond[0]);
+	#TBK.Delta[0] := UDINT_TO_REAL(LIMIT(MN := 1, IN := #TBK.Millisecond[0] - #TBK.Millisecond[1], MX := 100)) / 1000;
+END_FUNCTION
+
